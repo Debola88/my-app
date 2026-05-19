@@ -39,7 +39,6 @@ export function DocumentTable({ data, onDelete }: Props) {
       ? <ArrowUp className="ml-1 h-3 w-3" />
       : <ArrowDown className="ml-1 h-3 w-3" />
   }
-
   const filtered = useMemo(() => {
     const q = search.toLowerCase()
     return data

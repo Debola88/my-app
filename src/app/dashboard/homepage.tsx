@@ -1,7 +1,7 @@
 import { AddForm } from "@/views/form";
 import { DocumentTable } from "@/views/form/_component/document-table";
 import type { Document } from "@/types/document";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { InitialDocuments } from "@/data/document";
 
 export default function Homepage() {
@@ -13,6 +13,10 @@ export default function Homepage() {
       return InitialDocuments;
     }
   });
+
+  useEffect(() => {
+    localStorage.setItem("documents", JSON.stringify(docs));
+  }, [docs]);
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
