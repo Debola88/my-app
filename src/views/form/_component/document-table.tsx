@@ -5,7 +5,9 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Trash2, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
+import { Trash2, ArrowUpDown, ArrowUp, ArrowDown, MoreHorizontal, Eye, Edit } from "lucide-react"
 
 type SortKey = keyof Document
 type SortDir = "asc" | "desc"
@@ -24,6 +26,8 @@ export function DocumentTable({ data, onDelete }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>("id")
   const [sortDir, setSortDir] = useState<SortDir>("asc")
   const [page, setPage] = useState(1)
+  const [viewDialog, setViewDialog] = useState(false)
+  const [selectedDoc, setSelectedDoc] = useState<Document | null>(null)
 
   const types = useMemo(() => ["all", ...Array.from(new Set(data.map(d => d.type))).sort()], [data])
 
@@ -49,8 +53,8 @@ export function DocumentTable({ data, onDelete }: Props) {
         return true
       })
       .sort((a, b) => {
-        let av: string | number = a[sortKey]
-        let bv: string | number = b[sortKey]
+        let av: string | number = (a[sortKey] ?? "") as string | number
+        let bv: string | number = (b[sortKey] ?? "") as string | number
         if (sortKey === "target" || sortKey === "limit" || sortKey === "id") {
           av = Number(av); bv = Number(bv)
         }
@@ -147,9 +151,47 @@ export function DocumentTable({ data, onDelete }: Props) {
                   {doc.reviewer}
                 </TableCell>
                 <TableCell>
-                  <Button variant="ghost" size="icon" onClick={() => onDelete(doc.id)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
+                  <Popover>
+                    <PopoverTrigger>
+                      <Button variant="ghost" size="icon">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-40 p-2">
+                      <div className="flex flex-col gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="justify-start gap-2"
+                          onClick={() => {
+                            setSelectedDoc(doc)
+                            setViewDialog(true)
+                          }}
+                        >
+                          <Eye className="h-4 w-4" />
+                          View
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="justify-start gap-2"
+                          onClick={() => alert("Edit functionality not implemented in this demo")}
+                        >
+                          <Edit className="h-4 w-4" />
+                          Edit
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="justify-start gap-2 text-destructive hover:text-destructive"
+                          onClick={() => onDelete(doc.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          Delete
+                        </Button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </TableCell>
               </TableRow>
             ))}
@@ -170,6 +212,57 @@ export function DocumentTable({ data, onDelete }: Props) {
           </Button>
         </div>
       </div>
+
+      <Dialog open={viewDialog} onOpenChange={setViewDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Document Details</DialogTitle>
+            <DialogDescription>View information about the selected document</DialogDescription>
+          </DialogHeader>
+          {selectedDoc && (
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Header</p>
+                <p className="text-base">{selectedDoc.header}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Type</p>
+                <p className="text-base">{selectedDoc.type}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Status</p>
+                <Badge variant={selectedDoc.status === "Done" ? "default" : "secondary"}>
+                  {selectedDoc.status}
+                </Badge>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Target</p>
+                <p className="text-base">{selectedDoc.target}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Limit</p>
+                <p className="text-base">{selectedDoc.limit}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Reviewer</p>
+                <p className="text-base">{selectedDoc.reviewer}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">File</p>
+                {selectedDoc.base64 ? (
+                  <img
+                    src={selectedDoc.base64}
+                    alt="Attached file"
+                    className="object-cover rounded-md border max-h-96"
+                  />
+                ) : (
+                  <p className="text-sm italic text-muted-foreground">No file attached</p>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

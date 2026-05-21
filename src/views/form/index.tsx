@@ -19,10 +19,22 @@ export function AddForm({ onAdd }: Props) {
     target: "", limit: "", reviewer: ""
   })
   const [errors, setErrors] = useState<Partial<Record<keyof typeof form, string>>>({})
+  const [base64, setBase64] = useState<string>("")
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = reader.result as string
+      setBase64(result)
+    }
+    reader.readAsDataURL(file)
+  }
 
 
   const handleSubmit = () => {
-    onAdd({ ...form, id: Date.now() })
+    onAdd({ ...form, id: Date.now(), base64 })
     setForm({ header: "", type: "Narrative", status: "In Process", target: "", limit: "", reviewer: "" })
     setErrors({})
     setOpen(false)
@@ -79,6 +91,11 @@ export function AddForm({ onAdd }: Props) {
             <Input value={form.reviewer} onChange={set("reviewer")} placeholder="e.g. Eddie Lake" />
             {errors.reviewer && <p className="text-xs text-destructive">{errors.reviewer}</p>}
           </div>
+        <div className="col-span-2 space-y-1">
+          <Label>File</Label>
+          <input type="file" accept="application/pdf,image/*" onChange={handleFileChange} className="cursor-pointer"/>
+          {base64 && <p className="text-xs">File selected</p>}
+        </div>
         </div>
         <div className="flex justify-end gap-2 mt-2">
           <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>

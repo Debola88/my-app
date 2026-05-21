@@ -6,4 +6,5 @@ export type Document = {
   target: string
   limit: string
   reviewer: string
+  base64?: string
 }
