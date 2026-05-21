@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Plus } from "lucide-react"
 
-const TYPES = ["Narrative", "Technical content", "Legal", "Research", "Planning",
+export const TYPES = ["Narrative", "Technical content", "Legal", "Research", "Planning",
   "Financial", "Visual", "Plain language", "Cover page", "Table of contents"]
 
 type Props = { onAdd: (doc: Document) => void }
@@ -39,6 +39,7 @@ export function AddForm({ onAdd }: Props) {
     setErrors({})
     setOpen(false)
   }
+
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm(f => ({ ...f, [k]: e.target.value }))

@@ -32,6 +32,11 @@ export default function Homepage() {
       <DocumentTable
         data={docs}
         onDelete={(id) => setDocs((prev) => prev.filter((d) => d.id !== id))}
+        onEdit={(updatedDoc) =>
+          setDocs((prev) =>
+            prev.map((d) => (d.id === updatedDoc.id ? updatedDoc : d))
+          )
+        }
       />
     </div>
   );
